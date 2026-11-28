@@ -11,8 +11,7 @@ import ScaleBadge from "./ScaleBadge";
 
 function fmtDateTime(s: string): string {
   const d = parseJstTime(s);
-  if (!d) return s;
-  return `${d.getMonth() + 1}/${d.getDate()} ${fmtTime(d)}`;
+  return d ? fmtTime(d) : s;
 }
 
 export default function QuakesList() {

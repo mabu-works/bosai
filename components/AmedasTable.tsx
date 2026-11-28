@@ -3,7 +3,7 @@
 /* bosai — AmedasTable: the AMeDAS station master (via the A.A.S proxy)
    joined with the latest JMA observations (fetched directly from JMA:
    latest_time.txt, then the 10-minute-floored map snapshot). Rows are
-   kept only when temperature, 10-minute precipitation and wind are all
+   kept when any of temperature, 10-minute precipitation or wind is
    present. */
 
 import { useEffect, useState } from "react";

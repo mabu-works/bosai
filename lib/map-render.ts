@@ -950,10 +950,13 @@ async function drawFillRegion(
   const hypoPx = opts.hypo ? toPx(opts.hypo.lat, opts.hypo.lon) : null;
   if (hypoPx) drawHypoMark(ctx, hypoPx.x, hypoPx.y);
   const coordFills = fills.filter((f) => isValidCoord(f.lat, f.lon));
-  const placed: FillPlaced[] = placeScalePoints(
+  const placed = placeScalePoints(
     coordFills.map((f) => ({ name: f.name, scale: f.scale, lat: f.lat as number, lon: f.lon as number, openEnded: f.openEnded })),
     toPx
-  ).map((p) => ({ ...coordFills.find((f) => f.name === p.name)!, x: p.x, y: p.y, r: p.r }));
+  ).map((p) => {
+    const src = coordFills.find((f) => f.name === p.name)!;
+    return { ...src, lat: p.lat, lon: p.lon, x: p.x, y: p.y, r: p.r };
+  });
   drawScaleMarkers(ctx, region, placed);
   drawEewLabels(ctx, region, placed, hypoPx);
   ctx.restore();

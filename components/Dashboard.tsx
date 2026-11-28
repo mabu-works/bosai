@@ -57,11 +57,19 @@ import { DEFAULT_WEATHER_POINT, drawRadar, fetchForecast, fetchNowcastTargets, t
 import CanvasSlot from "./CanvasSlot";
 import ScaleBadge from "./ScaleBadge";
 
-// 🕐 "M/D HH:MM" from a JST timestamp string.
+// 🕐 "M/D HH:MM" from a JST timestamp string (fmtTime already includes
+// the date).
 function fmtDateTime(s: string | null | undefined): string {
   const d = parseJstTime(s ?? null);
   if (!d) return s ? String(s) : "―";
-  return `${d.getMonth() + 1}/${d.getDate()} ${fmtTime(d)}`;
+  return fmtTime(d);
+}
+
+// 🕐 "HH:MM" only, for the hourly forecast strip.
+function fmtHour(s: string): string {
+  const d = parseJstTime(s);
+  if (!d) return s;
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 // 🚨 The EEW headline shown in the banner and the map panel.
@@ -411,7 +419,7 @@ export default function Dashboard() {
             <div className="weather-hours">
               {forecast.hours.slice(0, 24).map((h) => (
                 <div className="weather-hour" key={h.time}>
-                  <span>{fmtTime(parseJstTime(h.time))}</span>
+                  <span>{fmtHour(h.time)}</span>
                   <span>{WMO_EMOJI[h.code ?? -1] ?? ""}</span>
                   <span>{formatTemp(h.temp)}</span>
                   <span className="muted">{h.pop !== null ? `${h.pop}%` : "―"}</span>
