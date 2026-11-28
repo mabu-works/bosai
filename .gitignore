@@ -1,0 +1,15 @@
+# Dependencies
+/node_modules
+
+# Next.js build output
+/.next
+/out
+next-env.d.ts
+*.tsbuildinfo
+
+# Logs and scratch files
+*.log
+.DS_Store
+
+# Environment files (A2S_TOKEN lives only in the host's env settings, never in the repo)
+.env*.local
