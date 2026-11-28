@@ -1,0 +1,1 @@
+{"background_color":"#0b1220","description":"地震・津波・緊急地震速報・気象警報・台風・天気をまとめて表示する防災情報サイト","display":"standalone","icons":[{"sizes":"192x192","src":"/icons/icon-192.png","type":"image/png"},{"sizes":"512x512","src":"/icons/icon-512.png","type":"image/png"}],"name":"bosai","scope":"/","short_name":"bosai","start_url":"/","theme_color":"#0b1220"}
