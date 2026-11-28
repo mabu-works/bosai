@@ -801,10 +801,10 @@ export async function buildIntensityReportCanvas(
     { size: 24 }
   );
   y = drawPanelItem(ctx, y, "深さ", depthLabel(record?.depthKm ?? null), { size: 24 });
-  const tsunamiText = TSUNAMI_LABELS[record?.tsunami ?? "None"] ?? "―";
+  const tsunamiText = TSUNAMI_LABELS[record?.tsunamiKind ?? "Unknown"] ?? "―";
   y = drawPanelItem(ctx, y, "津波", tsunamiText, {
     size: 24,
-    color: record?.tsunami && record.tsunami !== "None" ? "#ff8a80" : "#ffffff",
+    color: record?.tsunamiKind === "Advisory" || record?.tsunamiKind === "Warning" ? "#ff8a80" : "#ffffff",
   });
   const counts = new Map<number, number>();
   for (const p of points) counts.set(p.scale, (counts.get(p.scale) ?? 0) + 1);
@@ -995,18 +995,18 @@ function drawEewPanel(ctx: CanvasRenderingContext2D, eew: EewValue, headline: st
   drawPanelBase(ctx, "緊急地震速報");
   let y = 56;
   y = drawPanelItem(ctx, y, "見出し", headline || "―", { size: 22 });
-  y = drawPanelItem(ctx, y, "最大震度", mapScaleLabel(eew.maxScale ?? 0), {
-    color: mapScaleColor(eew.maxScale ?? 0),
+  y = drawPanelItem(ctx, y, "最大震度", mapScaleLabel(eew.estScale ?? 0), {
+    color: mapScaleColor(eew.estScale ?? 0),
     size: 44,
   });
-  const dt = parseJstTime(eew.time);
+  const dt = parseJstTime(eew.originTime);
   const timeText = dt
     ? `${dt.getMonth() + 1}月${dt.getDate()}日 ${String(dt.getHours()).padStart(2, "0")}時${String(dt.getMinutes()).padStart(2, "0")}分ごろ`
     : "―";
   y = drawPanelItem(ctx, y, "発生時刻", timeText, { size: 22 });
   y = drawPanelItem(ctx, y, "震源", eew.hypocenter ?? "―", { size: 24 });
-  y = drawPanelItem(ctx, y, "規模・マグニチュード", eew.magnitude !== null && eew.magnitude !== undefined ? `M${eew.magnitude}` : "―", { size: 24 });
-  y = drawPanelItem(ctx, y, "深さ", depthLabel(eew.depthKm ?? null), { size: 24 });
+  y = drawPanelItem(ctx, y, "規模・マグニチュード", eew.estMagnitude !== null && eew.estMagnitude !== undefined ? `M${eew.estMagnitude}` : "―", { size: 24 });
+  y = drawPanelItem(ctx, y, "深さ", depthLabel(eew.estDepthKm ?? null), { size: 24 });
   const areaCount = eew.areas?.length ?? 0;
   const topAreas = [...(eew.areas ?? [])]
     .sort((a, b) => b.scale - a.scale)
@@ -1117,8 +1117,8 @@ export async function buildEewReportCanvas(eew: EewValue, headline: string): Pro
 // ==========================================
 // 🌊 Tsunami maps (browser ports of buildTsunamiMap / buildTsunamiReport)
 // ==========================================
-export const TSUNAMI_GRADE_COLORS: Record<string, string> = { major: "#c2185b", warning: "#e53935", advisory: "#fdd835", watch: "#1e88e5" };
-export const TSUNAMI_GRADE_RANK: Record<string, number> = { advisory: 1, warning: 2, major: 3 };
+export const TSUNAMI_GRADE_COLORS: Record<string, string> = { MajorWarning: "#c2185b", Warning: "#e53935", Watch: "#fdd835" };
+export const TSUNAMI_GRADE_RANK: Record<string, number> = GRADE_RANK;
 
 // 📰 The tsunami panel (shared by the coastline and report images).
 function drawTsunamiPanel(ctx: CanvasRenderingContext2D, tsunami: TsunamiValue) {
@@ -1148,9 +1148,9 @@ function drawTsunamiPanel(ctx: CanvasRenderingContext2D, tsunami: TsunamiValue) 
   ctx.textBaseline = "top";
   ctx.fillText("凡例", REPORT_PANEL_X + 18, legendY);
   const legend: [string, string][] = [
-    ["major", "大津波警報"],
-    ["warning", "津波警報"],
-    ["advisory", "津波注意報"],
+    ["MajorWarning", "大津波警報"],
+    ["Warning", "津波警報"],
+    ["Watch", "津波注意報"],
   ];
   legend.forEach(([g, label], i) => {
     const ly = legendY + 24 + i * 22;
@@ -1233,7 +1233,7 @@ export async function buildTsunamiReportCanvas(tsunami: TsunamiValue): Promise<H
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.font = `bold 11px ${MAP_FONT}`;
-    ctx.fillStyle = a.grade === "advisory" ? "#212121" : "#ffffff";
+    ctx.fillStyle = a.grade === "Watch" ? "#212121" : "#ffffff";
     drawInkCenteredText(ctx, "津", p.x, p.y);
     return { ...a, x: p.x, y: p.y, r: 13 };
   };
